@@ -16,9 +16,9 @@ public class ResourceConfig implements WebMvcConfigurer {
         var path = format("file:///%s/src/main/resources", System.getProperty("user.dir"));
 
         registry.addResourceHandler("/static-client/**")
-            .addResourceLocations(path + "/client/public/");
+            .addResourceLocations(path + "/client/static-client/");
 
         registry.addResourceHandler("/static-admin/**")
-            .addResourceLocations(path + "/admin/public/");
+            .addResourceLocations(path + "/admin/static-admin/");
     }
 }
