@@ -21,6 +21,10 @@ public class SecurityFilterConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http.authorizeRequests()
+            .requestMatchers(PathRequest.toStaticResources().atCommonLocations())
+            .permitAll();
+
         http.cors().configurationSource(configurationSource);
         http.csrf(AbstractHttpConfigurer::disable);
         http.logout(AbstractHttpConfigurer::disable);
@@ -32,9 +36,6 @@ public class SecurityFilterConfig {
         http.oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
         http.oauth2Login().successHandler(successHandler);
 
-        http.authorizeRequests()
-            .requestMatchers(PathRequest.toStaticResources().atCommonLocations())
-            .permitAll();
         http.authorizeRequests().antMatchers("/auth/validate").authenticated();
         http.authorizeRequests().anyRequest().permitAll();
 

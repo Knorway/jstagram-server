@@ -32,27 +32,4 @@ public class ClientController {
     public String serveAdminClient() {
         return "admin react client";
     }
-
-    @GetMapping("/")
-    public String home() {
-        return envProperties.clientUrl();
-    }
-
-    //    @GetMapping("/")
-    //    public String home() {
-    //        return """
-    //            <a href='/oauth2/authorization/google'>google login</a>
-    //            <a href='/oauth2/authorization/naver'>naver login</a>
-    //            """;
-    //    }
-    //
-    //    @GetMapping("/test")
-    //    public String test() throws IOException, InterruptedException {
-    //        var client = HttpClient.newHttpClient();
-    //        var request = HttpRequest.newBuilder()
-    //            .uri(URI.create("https://jsonplaceholder.typicode.com/todos"))
-    //            .build();
-    //        var response = client.send(request, BodyHandlers.ofString());
-    //        return response.body();
-    //    }
 }
