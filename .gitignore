@@ -38,4 +38,6 @@ out/
 
 # Application
 **/resources/certs
+**/resources/client
+**/resources/admin
 **/application*.yml
