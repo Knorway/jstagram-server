@@ -1,8 +1,10 @@
 package jstagram.server.config.security;
 
 import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.RSAKey.Builder;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
+import com.nimbusds.jose.proc.SecurityContext;
 import java.util.List;
 import jstagram.server.config.properties.EnvProperties;
 import jstagram.server.config.properties.RsaKeyProperties;
@@ -29,15 +31,15 @@ public class SecurityConfig {
 
     @Bean
     public CorsConfigurationSource configurationSource() {
-        var localClientUrl = env.clientUrl();
+        String localClientUrl = env.clientUrl();
 
-        var configuration = new CorsConfiguration();
+        CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of(localClientUrl));
         configuration.setAllowedMethods(List.of("*"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
 
-        var source = new UrlBasedCorsConfigurationSource();
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
@@ -49,9 +51,9 @@ public class SecurityConfig {
 
     @Bean
     public JwtEncoder jwtEncoder() {
-        var jwk = new Builder(rsaKeyProperties.publicKey()).privateKey(rsaKeyProperties.privateKey())
+        RSAKey jwk = new Builder(rsaKeyProperties.publicKey()).privateKey(rsaKeyProperties.privateKey())
             .build();
-        var jwks = new ImmutableJWKSet<>(new JWKSet(jwk));
+        ImmutableJWKSet<SecurityContext> jwks = new ImmutableJWKSet<>(new JWKSet(jwk));
         return new NimbusJwtEncoder(jwks);
     }
 

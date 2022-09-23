@@ -31,20 +31,20 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         HttpServletResponse response,
         Authentication authentication
     ) throws IOException {
-        var provider = String.valueOf((request.getRequestURL())).split("code/")[1];
-        var principal = (OAuth2User) authentication.getPrincipal();
+        String provider = String.valueOf((request.getRequestURL())).split("code/")[1];
+        OAuth2User principal = (OAuth2User) authentication.getPrincipal();
 
-        var id = extractId(provider, principal);
-        var email = extractEmail(provider, principal);
+        String id = extractId(provider, principal);
+        String email = extractEmail(provider, principal);
 
-        var clientUrl = env.clientUrl();
-        var token = generateRedirectToken(id, email, provider);
+        String clientUrl = env.clientUrl();
+        String token = generateRedirectToken(id, email, provider);
 
         response.sendRedirect(format("%s?redirect=%s", clientUrl, token));
     }
 
     private String extractId(String provider, OAuth2User principal) {
-        var id = (String) switch (provider) {
+        String id = (String) switch (provider) {
             case "google" -> principal.getAttribute("sub");
             case "naver" -> {
                 Map<String, Object> res = principal.getAttribute("response");
@@ -59,7 +59,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
     }
 
     private String extractEmail(String provider, OAuth2User principal) {
-        var email = (String) switch (provider) {
+        String email = (String) switch (provider) {
             case "google" -> principal.getAttribute("email");
             case "naver" -> {
                 Map<String, Object> res = principal.getAttribute("response");
@@ -77,12 +77,12 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
     }
 
     private String generateRedirectToken(String id, String email, String provider) {
-        var exUser = userRepository.findByUsername(email);
+        User exUser = userRepository.findByUsername(email);
         if (exUser != null) {
             return authService.generateAccessToken(exUser.getId());
         }
 
-        var user = new User();
+        User user = new User();
         user.setProvider(format("%s-%s", provider, id));
         user.setUsername(email);
         userRepository.save(user);

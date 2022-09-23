@@ -19,6 +19,11 @@ public class AuthService {
         //        String scope = authentication.getAuthorities().stream()
         //            .map(GrantedAuthority::getAuthority)
         //            .collect(Collectors.joining(" "));
+
+        //        var subjectMap = new HashMap<String, String>();
+        //        subjectMap.put("id", String.valueOf(userId));
+        //        subjectMap.put("email", "test@email.com");
+
         JwtClaimsSet claims = JwtClaimsSet.builder()
             .issuer("self")
             .issuedAt(now)
@@ -30,8 +35,8 @@ public class AuthService {
         return this.jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
     }
 
-    //    public String generateRefreshToken() {
-    //        return "ok";
-    //    }
+    public String generateRefreshToken() {
+        return "todo";
+    }
 
 }

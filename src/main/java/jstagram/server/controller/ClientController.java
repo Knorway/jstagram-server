@@ -48,7 +48,7 @@ public class ClientController {
      */
     @PostConstruct
     public void loadDist() throws IOException {
-        var path = format("%s/src/main/resources", System.getProperty("user.dir"));
+        String path = format("%s/src/main/resources", System.getProperty("user.dir"));
         this.clientDist = Files.readAllBytes(Paths.get(format("%s/client/index.html", path)));
         this.adminDist = Files.readAllBytes(Paths.get(format("%s/admin/index.html", path)));
     }

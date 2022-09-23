@@ -1,6 +1,7 @@
 package jstagram.server.controller;
 
 import java.security.Principal;
+import java.util.Optional;
 import jstagram.server.config.properties.RsaKeyProperties;
 import jstagram.server.domain.User;
 import jstagram.server.dto.LoginRequest;
@@ -9,7 +10,6 @@ import jstagram.server.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,12 +27,12 @@ public class AuthController {
 
     @PostMapping("/register")
     public String register(@RequestBody LoginRequest body) {
-        var exUser = userRepository.findByUsername(body.getUsername());
+        User exUser = userRepository.findByUsername(body.getUsername());
         if (exUser != null) {
             throw new RuntimeException("user already exists");
         }
 
-        var user = new User();
+        User user = new User();
         user.setUsername(body.getUsername());
         user.setPassword(encoder.encode(body.getPassword()));
         userRepository.save(user);
@@ -42,24 +42,31 @@ public class AuthController {
 
     @PostMapping("/login")
     public String login(@RequestBody LoginRequest body) {
-        var user = userRepository.findByUsername(body.getUsername());
+        User user = userRepository.findByUsername(body.getUsername());
         if (!encoder.matches(body.getPassword(), user.getPassword())) {
             throw new RuntimeException("invalid password");
         }
         return authService.generateAccessToken(user.getId());
     }
 
-    @GetMapping("/validate")
-    public User test(Authentication authentication, Principal principal) {
-        var user = userRepository.findById(Long.parseLong(principal.getName()));
+    @PostMapping("/validate")
+    public User validate(Authentication authentication, Principal principal) {
+        //        System.out.println("principal.getName()" + principal.getName());
+        //        System.out.println("authentication.getAuthorities()" + authentication.getAuthorities());
+        //        System.out.println("authentication.getCredentials()" + authentication.getCredentials());
+        //        System.out.println("authentication.getDetails()" + authentication.getDetails());
+        //        System.out.println("authentication.getPrincipal()" + authentication.getPrincipal());
+
+        Optional<User> user = userRepository.findById(Long.parseLong(principal.getName()));
         if (user.isEmpty()) {
             throw new RuntimeException("no user");
         }
-        //        System.out.println(principal.getName());
-        //        System.out.println(authentication.getAuthorities());
-        //        System.out.println(authentication.getCredentials());
-        //        System.out.println(authentication.getDetails());
-        //        System.out.println(authentication.getPrincipal());
+
         return user.get();
+    }
+
+    @PostMapping("/refresh")
+    public String refreshToken() {
+        return "todo";
     }
 }
