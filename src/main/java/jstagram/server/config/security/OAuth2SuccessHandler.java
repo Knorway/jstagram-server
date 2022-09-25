@@ -40,7 +40,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         String clientUrl = env.clientUrl();
         String token = generateRedirectToken(id, email, provider);
 
-        response.sendRedirect(format("%s?redirect=%s", clientUrl, token));
+        response.sendRedirect(format("%s/auth-redirect?redirect=%s", clientUrl, token));
     }
 
     private String extractId(String provider, OAuth2User principal) {

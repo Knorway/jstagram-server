@@ -28,6 +28,8 @@ public class SecurityFilterConfig {
         http.cors().configurationSource(configurationSource);
         http.csrf(AbstractHttpConfigurer::disable);
         http.logout(AbstractHttpConfigurer::disable);
+        http.httpBasic(AbstractHttpConfigurer::disable);
+        http.formLogin(AbstractHttpConfigurer::disable);
         http.sessionManagement(session -> {
             session.sessionCreationPolicy(STATELESS);
             session.disable();
@@ -37,6 +39,7 @@ public class SecurityFilterConfig {
         http.oauth2Login().successHandler(successHandler);
 
         http.authorizeRequests().antMatchers("/auth/validate").authenticated();
+        //        http.authorizeRequests().antMatchers("/login").authenticated();
         http.authorizeRequests().anyRequest().permitAll();
 
         return http.build();

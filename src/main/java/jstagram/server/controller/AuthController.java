@@ -1,6 +1,7 @@
 package jstagram.server.controller;
 
 import java.security.Principal;
+import java.util.HashMap;
 import java.util.Optional;
 import jstagram.server.config.properties.RsaKeyProperties;
 import jstagram.server.domain.User;
@@ -16,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 @RestController
 public class AuthController {
 
@@ -50,7 +51,7 @@ public class AuthController {
     }
 
     @PostMapping("/validate")
-    public User validate(Authentication authentication, Principal principal) {
+    public HashMap<Object, Object> validate(Authentication authentication, Principal principal) {
         //        System.out.println("principal.getName()" + principal.getName());
         //        System.out.println("authentication.getAuthorities()" + authentication.getAuthorities());
         //        System.out.println("authentication.getCredentials()" + authentication.getCredentials());
@@ -62,7 +63,11 @@ public class AuthController {
             throw new RuntimeException("no user");
         }
 
-        return user.get();
+        HashMap<Object, Object> responseDto = new HashMap<>();
+        responseDto.put("id", user.get().getId());
+        responseDto.put("email", user.get().getUsername());
+
+        return responseDto;
     }
 
     @PostMapping("/refresh")
