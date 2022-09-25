@@ -2,7 +2,9 @@ package jstagram.server.config.resource;
 
 import static java.lang.String.format;
 
+import java.util.concurrent.TimeUnit;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.CacheControl;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -18,13 +20,14 @@ public class ResourceConfig implements WebMvcConfigurer {
         String imagePath = "file:///" + System.getProperty("user.dir") + "/upload/";
 
         registry.addResourceHandler("/static-client/**")
-            .addResourceLocations(resourcePath + "/client/");
+            .addResourceLocations(resourcePath + "/client/")
+            .setCacheControl(CacheControl.maxAge(365, TimeUnit.DAYS));
 
         registry.addResourceHandler("/static-admin/**")
             .addResourceLocations(resourcePath + "/admin/");
 
         registry.addResourceHandler("/image/**")
-            .addResourceLocations(imagePath);
-
+            .addResourceLocations(imagePath)
+            .setCacheControl(CacheControl.maxAge(365, TimeUnit.DAYS));
     }
 }
