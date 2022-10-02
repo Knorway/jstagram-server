@@ -1,9 +1,9 @@
-package jstagram.server.dto;
+package jstagram.server.dto.request;
 
 import lombok.Data;
 
 @Data
-public class LoginRequest {
+public class LoginRequestDto {
 
     private String username;
     private String password;

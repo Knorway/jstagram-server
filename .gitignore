@@ -42,3 +42,4 @@ out/
 **/resources/admin
 **/application*.yml
 upload/
+generated/

@@ -1,15 +1,15 @@
 package jstagram.server.controller;
 
-import java.security.Principal;
-import java.util.HashMap;
 import java.util.Optional;
 import jstagram.server.config.properties.RsaKeyProperties;
+import jstagram.server.config.security.JwtToken;
+import jstagram.server.config.security.TokenUser;
 import jstagram.server.domain.User;
-import jstagram.server.dto.LoginRequest;
+import jstagram.server.dto.UserDto;
+import jstagram.server.dto.request.LoginRequestDto;
 import jstagram.server.repository.UserRepository;
 import jstagram.server.service.AuthService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,47 +27,40 @@ public class AuthController {
     private final RsaKeyProperties rsaKeyProperties;
 
     @PostMapping("/register")
-    public String register(@RequestBody LoginRequest body) {
-        User exUser = userRepository.findByUsername(body.getUsername());
+    public String register(@RequestBody LoginRequestDto requestDto) {
+        User exUser = userRepository.findByUsername(requestDto.getUsername());
         if (exUser != null) {
             throw new RuntimeException("user already exists");
         }
 
         User user = new User();
-        user.setUsername(body.getUsername());
-        user.setPassword(encoder.encode(body.getPassword()));
+        user.setUsername(requestDto.getUsername());
+        user.setPassword(encoder.encode(requestDto.getPassword()));
         userRepository.save(user);
 
         return authService.generateAccessToken(user.getId());
     }
 
     @PostMapping("/login")
-    public String login(@RequestBody LoginRequest body) {
-        User user = userRepository.findByUsername(body.getUsername());
-        if (!encoder.matches(body.getPassword(), user.getPassword())) {
+    public String login(@RequestBody LoginRequestDto requestDto) {
+        User user = userRepository.findByUsername(requestDto.getUsername());
+        if (!encoder.matches(requestDto.getPassword(), user.getPassword())) {
             throw new RuntimeException("invalid password");
         }
         return authService.generateAccessToken(user.getId());
     }
 
     @PostMapping("/validate")
-    public HashMap<Object, Object> validate(Authentication authentication, Principal principal) {
-        //        System.out.println("principal.getName()" + principal.getName());
-        //        System.out.println("authentication.getAuthorities()" + authentication.getAuthorities());
-        //        System.out.println("authentication.getCredentials()" + authentication.getCredentials());
-        //        System.out.println("authentication.getDetails()" + authentication.getDetails());
-        //        System.out.println("authentication.getPrincipal()" + authentication.getPrincipal());
-
-        Optional<User> user = userRepository.findById(Long.parseLong(principal.getName()));
+    public UserDto validate(@JwtToken TokenUser auth) {
+        Optional<User> user = userRepository.findById(auth.getId());
         if (user.isEmpty()) {
             throw new RuntimeException("no user");
         }
 
-        HashMap<Object, Object> responseDto = new HashMap<>();
-        responseDto.put("id", user.get().getId());
-        responseDto.put("email", user.get().getUsername());
+        UserDto userDto = new UserDto();
+        userDto.setUser(user.get());
 
-        return responseDto;
+        return userDto;
     }
 
     @PostMapping("/refresh")

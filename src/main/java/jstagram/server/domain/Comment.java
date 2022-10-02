@@ -27,7 +27,13 @@ public class Comment extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @Column(name = "user_id", updatable = false, insertable = false)
+    private Long userId;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id")
     private Post post;
+
+    @Column(name = "post_id", updatable = false, insertable = false)
+    private Long postId;
 }

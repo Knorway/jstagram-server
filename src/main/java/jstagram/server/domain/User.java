@@ -37,9 +37,9 @@ public class User extends BaseEntity {
     @OneToMany(mappedBy = "user")
     private List<Likes> likes = new ArrayList<>();
 
-    @OneToMany(mappedBy = "userId", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Fellowship> followers = new ArrayList<>();
 
-    @OneToMany(mappedBy = "followerId", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "follower", cascade = CascadeType.ALL)
     private List<Fellowship> followings = new ArrayList<>();
 }

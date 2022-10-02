@@ -1,10 +1,10 @@
-package jstagram.server.dto;
+package jstagram.server.dto.request;
 
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 
 @Data
-public class UploadPostRequest {
+public class UploadPostRequestDto {
 
     private String content;
     private MultipartFile image;
