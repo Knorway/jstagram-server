@@ -10,6 +10,7 @@ import jstagram.server.domain.Comment;
 import jstagram.server.domain.Post;
 import jstagram.server.domain.User;
 import jstagram.server.dto.projection.CommentProjection;
+import jstagram.server.dto.projection.LikesProjection;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -25,12 +26,18 @@ public class PostDto {
 
     private UserDto user;
     private List<CommentDto> comments = new ArrayList<>();
+    private LikesDto likes;
+
 
     public void setPost(Post post) {
         this.id = post.getId();
         this.content = post.getContent();
         this.imgUrl = post.getImgUrl();
         this.createdAt = post.getCreatedAt();
+    }
+
+    public void setPost(LikesProjection projection) {
+        this.id = projection.getPostId();
     }
 
     public void setUser(User user) {
@@ -48,32 +55,27 @@ public class PostDto {
     }
 
     public void setComments(Map<Long, List<CommentProjection>> comments) {
-        List<CommentProjection> targetComments = comments.get(this.id);
-        if (targetComments != null) {
-            this.comments = targetComments.stream()
-                .map(comment -> {
+        List<CommentProjection> projections = comments.get(this.id);
+        if (projections != null) {
+            this.comments = projections.stream()
+                .map(projection -> {
                     CommentDto commentDto = new CommentDto();
-                    commentDto.setComment(comment);
-                    commentDto.setUser(comment);
+                    commentDto.setComment(projection);
+                    commentDto.setUser(projection);
                     return commentDto;
                 })
                 .toList();
         }
     }
 
-    //    public PostDto(Post post) {
-    //        this.id = post.getId();
-    //        this.content = post.getContent();
-    //        this.imgUrl = post.getImgUrl();
-    //    }
-    //
-    //    public PostDto(Post post, User user) {
-    //        this(post);
-    //        this.user = new MemberDto(user);
-    //    }
-
-    //    public PostDto(Post post, User user, List<Comment> comments) {
-    //        this(post, user);
-    //        this.comments = comments.stream().map(c -> new CommentDto(c.getContent())).toList();
-    //    }
+    public void setLikes(Map<Long, LikesProjection> likes) {
+        LikesProjection projection = likes.get(this.id);
+        if (projection != null) {
+            LikesDto likesDto = new LikesDto();
+            likesDto.setLikes(projection);
+            likesDto.setPost(projection);
+            likesDto.setUser(projection);
+            this.likes = likesDto;
+        }
+    }
 }

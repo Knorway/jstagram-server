@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 import jstagram.server.domain.Post;
 import jstagram.server.dto.projection.CommentProjection;
+import jstagram.server.dto.projection.LikesProjection;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -39,12 +40,12 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             	post AS p
             	INNER JOIN LATERAL (
             		SELECT
-            			c. `content`,
+            			c.content,
             			c.post_id,
             			user.id AS user_id,
             			user.username
             		FROM
-            			`comment` AS c
+            			comment AS c
             			INNER JOIN user ON c.user_id = user.id
             		WHERE
             			c.post_id = p.id
@@ -55,8 +56,43 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             	p.id in :postIds
             """, nativeQuery = true
     )
-    List<CommentProjection> getLimitedComments(
+    List<CommentProjection> findInitialComments(
         @Param("limit") int limit,
+        @Param("postIds") List<Long> postIds
+    );
+
+    @Query(
+        value = """
+            SELECT
+            	post.id AS postId,
+            	l.id AS likesId,
+            	l.user_id AS userId,
+            	count(post.id) AS likes,
+            	(
+            		SELECT
+            			count(likes.id)
+            		FROM
+            			likes
+            		WHERE
+            			likes.user_id = :userId
+            			AND likes.post_id = post.id) AS liked
+            	FROM
+            		post
+            		INNER JOIN LATERAL (
+            			SELECT
+            				*
+            			FROM
+            				likes
+            			WHERE
+            				likes.post_id = post.id) AS l ON l.post_id = post.id
+            	WHERE
+            		post.id in :postIds
+            	GROUP BY
+            		post.id
+            """, nativeQuery = true
+    )
+    List<LikesProjection> findLikesCountAndLiked(
+        @Param("userId") Long userId,
         @Param("postIds") List<Long> postIds
     );
 }

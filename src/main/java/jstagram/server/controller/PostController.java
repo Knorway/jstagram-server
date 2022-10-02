@@ -3,6 +3,7 @@ package jstagram.server.controller;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 import jstagram.server.config.security.JwtToken;
@@ -11,6 +12,7 @@ import jstagram.server.domain.Comment;
 import jstagram.server.domain.Post;
 import jstagram.server.dto.PostDto;
 import jstagram.server.dto.projection.CommentProjection;
+import jstagram.server.dto.projection.LikesProjection;
 import jstagram.server.dto.request.GetPostsRequestDto;
 import jstagram.server.dto.request.PostCommentRequestDto;
 import jstagram.server.dto.request.UploadPostRequestDto;
@@ -45,24 +47,24 @@ public class PostController {
         List<Post> posts = postService.getMainPagePosts(user.getId(), requestDto);
         List<Long> postIds = posts.stream().map(Post::getId).toList();
 
-        Map<Long, List<CommentProjection>> commentsMap = postRepository.getLimitedComments(
+        Map<Long, List<CommentProjection>> commentsMap = postRepository.findInitialComments(
                 3,
                 postIds
             )
             .stream()
             .collect(Collectors.groupingBy(CommentProjection::getPostId));
 
-        for (List<CommentProjection> value : commentsMap.values()) {
-            for (CommentProjection commentProjection : value) {
-                System.out.println(commentProjection.getContent());
-            }
-        }
+        Map<Long, LikesProjection> likesMap = postRepository.findLikesCountAndLiked(
+            user.getId(),
+            postIds
+        ).stream().collect(Collectors.toMap(LikesProjection::getPostId, Function.identity()));
 
         return posts.stream().map(post -> {
             PostDto dto = new PostDto();
             dto.setPost(post);
             dto.setUser(post.getUser());
             dto.setComments(commentsMap);
+            dto.setLikes(likesMap);
             return dto;
         }).toList();
 
@@ -102,5 +104,14 @@ public class PostController {
     @PostMapping("/post/like")
     public String createLike() {
         return "ok";
+    }
+
+    @GetMapping("/dto")
+    public Map<Long, LikesProjection> dto() {
+        Map<Long, LikesProjection> likes = postRepository.findLikesCountAndLiked(
+            9L,
+            List.of(17L, 18L, 8L)
+        ).stream().collect(Collectors.toMap(LikesProjection::getPostId, Function.identity()));
+        return likes;
     }
 }

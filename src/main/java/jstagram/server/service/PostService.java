@@ -5,7 +5,6 @@ import static java.lang.String.format;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
@@ -52,15 +51,6 @@ public class PostService {
         return postRepository.findRelatedPosts(userId, followingIds, pageParam);
     }
 
-    public Map<Long, List<Comment>> getMainPageComment(List<Long> ids) {
-        PageRequest pageParam = PageRequest.of(0, 3, Sort.by(Direction.DESC, "id"));
-
-        return ids.stream()
-            .map(id -> commentRepository.findByPostId(id, pageParam))
-            .flatMap(List::stream)
-            .collect(Collectors.groupingBy(Comment::getPostId));
-    }
-
 
     public Post savePost(Long userId, UploadPostRequestDto request) {
         User userReference = em.getReference(User.class, userId);
@@ -74,6 +64,7 @@ public class PostService {
         return postRepository.save(post);
     }
 
+
     public Comment saveComment(Long userId, PostCommentRequestDto requestDto) {
         Comment comment = new Comment();
         comment.setUser(em.getReference(User.class, userId));
@@ -81,6 +72,7 @@ public class PostService {
         comment.setContent(requestDto.getContent());
         return commentRepository.save(comment);
     }
+
 
     private String savePostImageFile(MultipartFile image) {
         UUID uuid = UUID.randomUUID();
