@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 import jstagram.server.domain.Comment;
 import jstagram.server.domain.Fellowship;
+import jstagram.server.domain.Likes;
 import jstagram.server.domain.Post;
 import jstagram.server.domain.User;
 import jstagram.server.dto.request.GetPostsRequestDto;
@@ -17,6 +18,7 @@ import jstagram.server.dto.request.PostCommentRequestDto;
 import jstagram.server.dto.request.UploadPostRequestDto;
 import jstagram.server.repository.CommentRepository;
 import jstagram.server.repository.FellowshipRepository;
+import jstagram.server.repository.LikesRepository;
 import jstagram.server.repository.PostRepository;
 import jstagram.server.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +37,7 @@ public class PostService {
     private final UserRepository userRepository;
     private final FellowshipRepository fellowshipRepository;
     private final CommentRepository commentRepository;
+    private final LikesRepository likesRepository;
 
     private final String dir = System.getProperty("user.dir") + "/upload/";
 
@@ -50,7 +53,6 @@ public class PostService {
 
         return postRepository.findRelatedPosts(userId, followingIds, pageParam);
     }
-
 
     public Post savePost(Long userId, UploadPostRequestDto request) {
         User userReference = em.getReference(User.class, userId);
@@ -73,6 +75,19 @@ public class PostService {
         return commentRepository.save(comment);
     }
 
+    public boolean likeOrUnlikePost(Long userId, Long postId) {
+        Likes alreadyLiked = likesRepository.findByPostIdAndUserId(postId, userId);
+        if (alreadyLiked == null) {
+            Likes likes = new Likes();
+            likes.setUser(em.getReference(User.class, userId));
+            likes.setPost(em.getReference(Post.class, postId));
+            likesRepository.save(likes);
+            return true;
+        }
+
+        likesRepository.delete(alreadyLiked);
+        return false;
+    }
 
     private String savePostImageFile(MultipartFile image) {
         UUID uuid = UUID.randomUUID();

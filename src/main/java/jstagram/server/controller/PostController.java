@@ -15,7 +15,9 @@ import jstagram.server.dto.projection.CommentProjection;
 import jstagram.server.dto.projection.LikesProjection;
 import jstagram.server.dto.request.GetPostsRequestDto;
 import jstagram.server.dto.request.PostCommentRequestDto;
+import jstagram.server.dto.request.PostLikeRequestDto;
 import jstagram.server.dto.request.UploadPostRequestDto;
+import jstagram.server.repository.FellowshipRepository;
 import jstagram.server.repository.PostRepository;
 import jstagram.server.repository.UserRepository;
 import jstagram.server.service.PostService;
@@ -38,6 +40,8 @@ public class PostController {
 
     private final UserRepository userRepository;
     private final PostRepository postRepository;
+
+    private final FellowshipRepository fellowshipRepository;
 
     @GetMapping("/post")
     public List<PostDto> getPosts(
@@ -102,16 +106,7 @@ public class PostController {
     }
 
     @PostMapping("/post/like")
-    public String createLike() {
-        return "ok";
-    }
-
-    @GetMapping("/dto")
-    public Map<Long, LikesProjection> dto() {
-        Map<Long, LikesProjection> likes = postRepository.findLikesCountAndLiked(
-            9L,
-            List.of(17L, 18L, 8L)
-        ).stream().collect(Collectors.toMap(LikesProjection::getPostId, Function.identity()));
-        return likes;
+    public boolean likeOrUnlike(@JwtToken TokenUser auth, @RequestBody PostLikeRequestDto body) {
+        return postService.likeOrUnlikePost(auth.getId(), body.getPostId());
     }
 }

@@ -28,7 +28,6 @@ public class PostDto {
     private List<CommentDto> comments = new ArrayList<>();
     private LikesDto likes;
 
-
     public void setPost(Post post) {
         this.id = post.getId();
         this.content = post.getContent();
